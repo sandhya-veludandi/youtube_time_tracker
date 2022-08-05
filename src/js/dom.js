@@ -13,6 +13,8 @@ import { readData } from './tracker';
 import { getCookie, setCookie } from './helpers/cookie';
 import { log } from './helpers/log';
 
+let TIMER_DATA;
+
 const timerBlock = function() {
   const logo = document.getElementById("logo");
   let timer = document.getElementById("youtube-time-tracker");
@@ -36,6 +38,15 @@ const timerBlock = function() {
 
             <ul class="youtube-time-tracker__stats">
             </ul>
+
+            <div style="color: black;" class="youtube-time-tracker_daily-limit">
+              <br>
+              <label for="limit">Select a time limit:</label>
+              <input type="time" id="limit" name="limit" value="00:30">
+              <input id="limit-button" type="submit">
+              <p id="demo1"></p>
+              <p id="demo2"></p>
+            </div>
 
             <div class="youtube-time-tracker__links">
               <a class="youtube-time-tracker__link secondary-link"
@@ -79,6 +90,7 @@ const timerBlock = function() {
 
     logo.parentNode.insertBefore(timer, logo.nextSibling);
 
+    const dailyTimeLimitSubmitButton = document.querySelector("#limit-button")
     const ratingBlock = document.querySelector(".youtube-time-tracker__rating");
     const ratingLink = ratingBlock.querySelector(".js-ytt-rating");
     const closeLink = ratingBlock.querySelector(".js-hide-ytt-rating");
@@ -102,6 +114,26 @@ const timerBlock = function() {
 
       disableRatingBlock();
     });
+
+    dailyTimeLimitSubmitButton.addEventListener("click", function(e) {
+      
+      console.log("daily time limit button selected")
+      // get the limit from the input field
+      let daily_time_limit = document.getElementById("limit").value
+      let daily_time_limit_min = daily_time_limit.substring(3) // extract min
+      let daily_time_limit_hours = daily_time_limit.substring(0, 2)// extract hours
+
+      // get the daily time spent on youtube
+      let daily_time = formatTime(TIMER_DATA[todayDate()]);
+      let daily_time_min = daily_time.substring(0, daily_time.indexOf("min")) // extract min
+      // extract hours
+      document.getElementById("demo1").innerHTML = daily_time_limit_min;
+      document.getElementById("demo2").innerHTML = daily_time_min;
+
+      // if the daily time equals the limit then create a pop up window saying that
+      // the limit is exceeded 
+      // if (daily_time === daily_time_limit_min) {}
+    })
   }
 
   return timer;
@@ -172,9 +204,18 @@ const statsContent = function(timerData) {
   return stats;
 }
 
+const getTimerData = () => {
+  return TIMER_DATA;
+}
+
+const setTimerData = (timerData) => {
+  TIMER_DATA = timerData;
+}
+
 export const renderTimer = function(timerData) {
   log('--> renderTimer');
-
+  console.log("setting timer data")
+  setTimerData(timerData);
   let logo = document.getElementById("logo");
 
   if(logo) {

@@ -135,6 +135,8 @@ var _cookie = __webpack_require__(/*! ./helpers/cookie */ "./src/js/helpers/cook
 
 var _log = __webpack_require__(/*! ./helpers/log */ "./src/js/helpers/log.js");
 
+var TIMER_DATA = void 0;
+
 var timerBlock = function timerBlock() {
   var logo = document.getElementById("logo");
   var timer = document.getElementById("youtube-time-tracker");
@@ -142,13 +144,14 @@ var timerBlock = function timerBlock() {
   if (!timer) {
     timer = document.createElement("div");
 
-    timer.innerHTML = '\n      <div class="youtube-time-tracker__body">\n        <div class="youtube-time-tracker__stopwatch-icon">\n        </div>\n\n        <div class="youtube-time-tracker__time">\n        </div>\n\n        <div class="youtube-time-tracker__popup">\n          <div class="youtube-time-tracker__popup-body">\n            <div class="youtube-time-tracker__name">\n              Youtube Time Tracker\n            </div>\n\n            <ul class="youtube-time-tracker__stats">\n            </ul>\n\n            <div class="youtube-time-tracker__links">\n              <a class="youtube-time-tracker__link secondary-link"\n                href="https://github.com/makaroni4/youtube_time_tracker"\n                target="_blank">\n                Source code\n              </a>\n\n              <a class="youtube-time-tracker__link secondary-link"\n                href="http://bit.ly/YTT-feedback"\n                target="_blank">\n                Give feedback\n              </a>\n            </div>\n          </div>\n\n          <div class="youtube-time-tracker__rating">\n            <div class="youtube-time-tracker__rating-description">\n              If you like the extension \u2013 please, spread the word & rate it in Chrome Web Store:\n            </div>\n\n            <div class="youtube-time-tracker__rating-cta">\n              <a href="http://bit.ly/rate-YTT"\n                 class="youtube-time-tracker__rating-button js-ytt-rating"\n                 target="_blank">\n                RATE IT\n              </a>\n\n              <a href="#"\n                 class="secondary-link youtube-time-tracker__rating-later js-hide-ytt-rating">\n                Later\n              </a>\n            </div>\n          </div>\n        </div>\n      </div>\n    '.trim();
+    timer.innerHTML = '\n      <div class="youtube-time-tracker__body">\n        <div class="youtube-time-tracker__stopwatch-icon">\n        </div>\n\n        <div class="youtube-time-tracker__time">\n        </div>\n\n        <div class="youtube-time-tracker__popup">\n          <div class="youtube-time-tracker__popup-body">\n            <div class="youtube-time-tracker__name">\n              Youtube Time Tracker\n            </div>\n\n            <ul class="youtube-time-tracker__stats">\n            </ul>\n\n            <div style="color: black;" class="youtube-time-tracker_daily-limit">\n              <br>\n              <label for="limit">Select a time limit:</label>\n              <input type="time" id="limit" name="limit" value="00:30">\n              <input id="limit-button" type="submit">\n              <p id="demo1"></p>\n              <p id="demo2"></p>\n            </div>\n\n            <div class="youtube-time-tracker__links">\n              <a class="youtube-time-tracker__link secondary-link"\n                href="https://github.com/makaroni4/youtube_time_tracker"\n                target="_blank">\n                Source code\n              </a>\n\n              <a class="youtube-time-tracker__link secondary-link"\n                href="http://bit.ly/YTT-feedback"\n                target="_blank">\n                Give feedback\n              </a>\n            </div>\n          </div>\n\n          <div class="youtube-time-tracker__rating">\n            <div class="youtube-time-tracker__rating-description">\n              If you like the extension \u2013 please, spread the word & rate it in Chrome Web Store:\n            </div>\n\n            <div class="youtube-time-tracker__rating-cta">\n              <a href="http://bit.ly/rate-YTT"\n                 class="youtube-time-tracker__rating-button js-ytt-rating"\n                 target="_blank">\n                RATE IT\n              </a>\n\n              <a href="#"\n                 class="secondary-link youtube-time-tracker__rating-later js-hide-ytt-rating">\n                Later\n              </a>\n            </div>\n          </div>\n        </div>\n      </div>\n    '.trim();
 
     timer.id = "youtube-time-tracker";
     timer.className = "youtube-time-tracker";
 
     logo.parentNode.insertBefore(timer, logo.nextSibling);
 
+    var dailyTimeLimitSubmitButton = document.querySelector("#limit-button");
     var ratingBlock = document.querySelector(".youtube-time-tracker__rating");
     var ratingLink = ratingBlock.querySelector(".js-ytt-rating");
     var closeLink = ratingBlock.querySelector(".js-hide-ytt-rating");
@@ -171,6 +174,22 @@ var timerBlock = function timerBlock() {
       e.preventDefault();
 
       disableRatingBlock();
+    });
+
+    dailyTimeLimitSubmitButton.addEventListener("click", function (e) {
+
+      console.log("daily time limit button selected");
+      // get the limit from the input field
+      var daily_time_limit = document.getElementById("limit").value;
+      var daily_time_limit_min = daily_time_limit.substring(3); // extract min
+      var daily_time_limit_hours = daily_time_limit.substring(0, 2); // extract hours
+
+      // get the daily time spent on youtube
+      var daily_time = (0, _formatting.formatTime)(TIMER_DATA[(0, _date.todayDate)()]);
+      var daily_time_min = daily_time.substring(0, daily_time.indexOf("min")); // extract min
+      // extract hours
+      document.getElementById("demo1").innerHTML = daily_time_limit_min;
+      document.getElementById("demo2").innerHTML = daily_time_min;
     });
   }
 
@@ -230,9 +249,18 @@ var statsContent = function statsContent(timerData) {
   return stats;
 };
 
+var getTimerData = function getTimerData() {
+  return TIMER_DATA;
+};
+
+var setTimerData = function setTimerData(timerData) {
+  TIMER_DATA = timerData;
+};
+
 var renderTimer = exports.renderTimer = function renderTimer(timerData) {
   (0, _log.log)('--> renderTimer');
-
+  console.log("setting timer data");
+  setTimerData(timerData);
   var logo = document.getElementById("logo");
 
   if (logo) {
