@@ -30,6 +30,12 @@ const timerBlock = function() {
         <div class="youtube-time-tracker__time">
         </div>
 
+        <div id="notif" class="youtube-time-tracker__notif">
+          <div class="youtube-time-tracker__notif-body">
+            You have reached or exceeded your daily time limit on YouTube.
+          </div>
+        </div>
+
         <div class="youtube-time-tracker__popup">
           <div class="youtube-time-tracker__popup-body">
             <div class="youtube-time-tracker__name">
@@ -116,27 +122,52 @@ const timerBlock = function() {
     });
 
     dailyTimeLimitSubmitButton.addEventListener("click", function(e) {
-      
       console.log("daily time limit button selected")
-      // get the limit from the input field
-      let daily_time_limit = document.getElementById("limit").value
-      let daily_time_limit_min = daily_time_limit.substring(3) // extract min
-      let daily_time_limit_hours = daily_time_limit.substring(0, 2)// extract hours
-
-      // get the daily time spent on youtube
-      let daily_time = formatTime(TIMER_DATA[todayDate()]);
-      let daily_time_min = daily_time.substring(0, daily_time.indexOf("min")) // extract min
-      // extract hours
-      document.getElementById("demo1").innerHTML = daily_time_limit_min;
-      document.getElementById("demo2").innerHTML = daily_time_min;
-
-      // if the daily time equals the limit then create a pop up window saying that
-      // the limit is exceeded 
-      // if (daily_time === daily_time_limit_min) {}
+      checkIfTimeLimitExceeded();
     })
   }
 
   return timer;
+}
+
+const checkIfTimeLimitExceeded = () => {
+  console.log("hello check if working")
+  // get the limit from the input field
+  let daily_time_limit = document.getElementById("limit").value;
+  let daily_time_limit_min = daily_time_limit.substring(3); // extract min
+  console.log(daily_time_limit_min)
+  console.log(daily_time_limit_min.charAt(0))
+  console.log(daily_time_limit_min.charAt(0) === '0')
+  
+  if (daily_time_limit_min.charAt(0) === '0') {
+    console.log("first minute is 0");
+    daily_time_limit_min = daily_time_limit_min.charAt(1);
+  }
+  let daily_time_limit_hours = daily_time_limit.substring(0, 2); // extract hours
+
+  // get the daily time spent on youtube
+  let daily_time = formatTime(TIMER_DATA[todayDate()]);
+  let daily_time_min = daily_time.substring(0, daily_time.indexOf("min")) // extract min
+  // extract hours
+  document.getElementById("demo1").innerHTML = daily_time_limit_min;
+  document.getElementById("demo2").innerHTML = daily_time_min;
+
+  daily_time_limit_min = parseInt(daily_time_limit_min, 10)
+  daily_time_min = parseInt(daily_time_min, 10)
+
+  //check if time limit exceeded
+  var displayStatus = document.getElementById("notif");
+  console.log("daily_time_min: ", daily_time_min)
+  console.log("daily_time_limit_min: ", daily_time_limit_min)
+  console.log("daily_time_min >= daily_time_limit_min: ", daily_time_min >= daily_time_limit_min)
+  if (daily_time_min >= daily_time_limit_min) {
+    //create popup
+    console.log("daily time limit exceeded")
+    displayStatus.style.display = 'block'
+  } else {
+    console.log("you can keep watching")
+    displayStatus.style.display = 'none'
+  }
 }
 
 const upliftCssClass = function(currentTime, prevTime) {
@@ -229,10 +260,12 @@ export const renderTimer = function(timerData) {
     if(timerData) {
       timeBlock.innerHTML = formatTime(timerData[today]);
       statsBlock.innerHTML = statsContent(timerData);
+      checkIfTimeLimitExceeded();
     } else {
       readData(function(timerData) {
         timeBlock.innerHTML = formatTime(timerData[today]);
         statsBlock.innerHTML = statsContent(timerData);
+        checkIfTimeLimitExceeded();
       });
     }
   }
